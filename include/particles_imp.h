@@ -48,7 +48,7 @@ particles_t::p2g
     // }
 
 
-    for (idx_t ip = 0; ip <= this->num_particles; ++ip) {
+    for (idx_t ip = 0; ip < this->num_particles; ++ip) {
       xx = x[ip];
       yy = y[ip];
       auto icell = grid[ptcl_to_grd[ip]];
@@ -125,7 +125,7 @@ particles_t::p2gd
     //          }
     // }
 
-    for (idx_t ip = 0; ip <= this->num_particles; ++ip) {
+    for (idx_t ip = 0; ip < this->num_particles; ++ip) {
       xx = x[ip];
       yy = y[ip];
       auto icell = grid[ptcl_to_grd[ip]];
@@ -192,7 +192,7 @@ particles_t::g2p
     //  }
     // }
 
-    for (idx_t ip = 0; ip <= this->num_particles; ++ip) {
+    for (idx_t ip = 0; ip < this->num_particles; ++ip) {
       xx = x[ip];
       yy = y[ip];
       auto icell = grid[ptcl_to_grd[ip]];
@@ -262,7 +262,7 @@ particles_t::g2pd
     // }
 
 
-    for (idx_t ip = 0; ip <= this->num_particles; ++ip) {
+    for (idx_t ip = 0; ip < this->num_particles; ++ip) {
       xx = x[ip];
       yy = y[ip];
       auto icell = grid[ptcl_to_grd[ip]];
