@@ -102,8 +102,14 @@ particles_t::init_particle_mesh () {
   ptcl_to_grd.assign (this->num_particles, 0);
 
   for (auto ii = 0; ii < this->num_particles; ++ii) {
+    //idx_t c = static_cast<idx_t> (std::floor (x[ii] / grid.hx ()));
+    //idx_t r = static_cast<idx_t> (std::floor (y[ii] / grid.hy ()));
     idx_t c = static_cast<idx_t> (std::floor (x[ii] / grid.hx ()));
     idx_t r = static_cast<idx_t> (std::floor (y[ii] / grid.hy ()));
+    if (c >= grid.num_cols ()) c = grid.num_cols () - 1;
+    if (r >= grid.num_rows ()) r = grid.num_rows () - 1;
+    if (c < 0) c = 0;
+    if (r < 0) r = 0;
 
     //std::cout << r << " " << c << " " << grid.sub2gind (r, c) << std::endl;
     grd_to_ptcl[grid.sub2gind (r, c)].push_back (ii);
