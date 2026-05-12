@@ -1,6 +1,7 @@
 #ifndef PARTICLES_IMP_H
 #define PARTICLES_IMP_H
 #include "counter.h"
+#include "../../../main/gpu_kernels.h"
 
 template<typename str>
 void
@@ -307,7 +308,8 @@ particles_t::g2pd
     std::for_each (rng.begin (), rng.end (), helper);
 
   }
-}
+ }
+
 
 template<>
 void

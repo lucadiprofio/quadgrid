@@ -225,7 +225,6 @@ particles_t {
   update_ptcl_to_grd ();
   
   //! @brief Mark particles by cell color
-
   void
   mark_by_cell_color ();
 
