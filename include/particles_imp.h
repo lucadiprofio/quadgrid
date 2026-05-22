@@ -1,7 +1,6 @@
 #ifndef PARTICLES_IMP_H
 #define PARTICLES_IMP_H
 #include "counter.h"
-#include "../../../main/gpu_kernels.h"
 
 template<typename str>
 void
