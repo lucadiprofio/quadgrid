@@ -45,6 +45,24 @@ particles_t {
   std::map<idx_t, std::vector<idx_t>> grd_to_ptcl;   //!< grid->particles connectivity.
   std::vector<idx_t> ptcl_to_grd;                    //!< particles->grid connectivity.
   std::vector<idx_t> ptcl_grd_color;                 //!< color of particle's cell.
+
+  // -----------------------------------------------------------------
+  // CSR + 4-color data structures for race-free parallel P2G on GPU.
+  // Built automatically by init_particle_mesh().
+  //
+  //   cell_start[cell] .. cell_start[cell+1]-1  -> indices into cell_ptcls[]
+  //   cell_ptcls[j]                             -> particle index ip
+  //   color_cell_idx[color_offsets[c]..color_offsets[c+1]-1] -> cells of color c
+  //
+  // Coloring rule: color = (row%2)*2 + (col%2) -> 4 colors (0..3).
+  // Cells of the same color share NO nodes -> safe concurrent writes,
+  // no atomics needed in the GPU P2G/P2GD kernels.
+  // -----------------------------------------------------------------
+  std::vector<int> cell_start;       //!< CSR row pointers: cell -> particles.
+  std::vector<int> cell_ptcls;       //!< CSR column indices: particle indices per cell.
+  std::vector<int> color_cell_idx;   //!< cell indices sorted by color.
+  int color_offsets[5] = {0};        //!< color_offsets[c]..color_offsets[c+1]: range of color c.
+
   const quadgrid_t<std::vector<double>>& grid;       //!< refernce to a grid object.
 
   //! Enumeration of available output format

@@ -119,6 +119,59 @@ particles_t::init_particle_mesh () {
   }
 
   update_ptcl_to_grd ();
+
+  // -------------------------------------------------------------
+  // CSR (cell -> particles) + 4-color cell ordering
+  
+  // Required by the GPU P2G/P2GD kernels (gpu_kernels.cpp) to
+  // scatter without atomics: cells of the same color share no
+  // nodes, so all particles in same-colored cells can be processed
+  // concurrently
+  // -------------------------------------------------------------
+  {
+    const int np     = this->num_particles;
+    const int nrows  = grid.num_rows ();
+    const int ncols  = grid.num_cols ();
+    const int ncells = nrows * ncols;
+
+    std::vector<int> cell_count (ncells, 0);
+    for (int ip = 0; ip < np; ++ip)
+      cell_count[ptcl_to_grd[ip]]++;
+
+    cell_start.resize (ncells + 1);
+    cell_start[0] = 0;
+    for (int i = 0; i < ncells; ++i)
+      cell_start[i + 1] = cell_start[i] + cell_count[i];
+
+    cell_ptcls.resize (np);
+    std::fill (cell_count.begin (), cell_count.end (), 0);
+    for (int ip = 0; ip < np; ++ip) {
+      int cell = ptcl_to_grd[ip];
+      cell_ptcls[cell_start[cell] + cell_count[cell]++] = ip;
+    }
+
+    int ccounts[4] = {0, 0, 0, 0};
+    for (int cell = 0; cell < ncells; ++cell) {
+      int r   = cell % nrows;
+      int c   = cell / nrows;
+      int col = (r % 2) * 2 + (c % 2);
+      ccounts[col]++;
+    }
+
+    color_offsets[0] = 0;
+    for (int k = 0; k < 4; ++k)
+      color_offsets[k + 1] = color_offsets[k] + ccounts[k];
+
+    color_cell_idx.resize (ncells);
+    int cpos[4] = { color_offsets[0], color_offsets[1],
+                    color_offsets[2], color_offsets[3] };
+    for (int cell = 0; cell < ncells; ++cell) {
+      int r   = cell % nrows;
+      int c   = cell / nrows;
+      int col = (r % 2) * 2 + (c % 2);
+      color_cell_idx[cpos[col]++] = cell;
+    }
+  }
   
   /*
     std::cout << "grd_to_ptcl" << "\n";
